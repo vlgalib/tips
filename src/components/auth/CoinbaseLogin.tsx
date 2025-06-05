@@ -17,7 +17,7 @@ export function CoinbaseLogin() {
       // 1. Initialize Coinbase Wallet
       const coinbaseWallet = new CoinbaseWalletSDK({
         appName: "TipMaster",
-        appLogoUrl: "https://tipmaster.com/logo.png",
+        appLogoUrl: "/logo.png",
         appChainIds: [8453], // Base mainnet
       });
 

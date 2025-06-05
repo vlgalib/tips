@@ -320,4 +320,4 @@ npm audit
 For deployment issues:
 1. Check Firebase Console
 2. Review application logs
-3. Contact support@tipmaster.com 
+3. Contact the project maintainers through GitHub issues 
