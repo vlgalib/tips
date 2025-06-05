@@ -6,6 +6,8 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import PaymentMethodSelector from '@/components/PaymentMethodSelector';
 import { createCharge } from '@/lib/payments';
+import { Client } from '@xmtp/xmtp-js';
+import { TextCodec, ReactionCodec } from '@xmtp/xmtp-js/dist/codecs';
 
 export default function TipPage() {
   const params = useParams();
@@ -58,13 +60,51 @@ export default function TipPage() {
           break;
 
         case 'xmtp':
-          // TODO: Implement XMTP payment
-          console.log('XMTP payment:', amount, staffData.walletAddress);
+          try {
+            // Request wallet connection
+            const { address } = await window.coinbaseWalletProvider.request({
+              method: 'eth_requestAccounts'
+            });
+
+            // Sign message for XMTP
+            const signMessage = 'Enable XMTP messaging for TipMaster';
+            const signature = await window.coinbaseWalletProvider.request({
+              method: 'personal_sign',
+              params: [signMessage, address]
+            });
+
+            // Initialize XMTP client
+            const xmtpClient = await Client.create(address, {
+              env: 'production',
+              codecs: [new TextCodec(), new ReactionCodec()]
+            });
+
+            // Create conversation and send tip message
+            const conversation = await xmtpClient.conversations.newConversation(
+              staffData.walletAddress
+            );
+
+            const tipMessage = {
+              type: 'tip',
+              amount,
+              message: message || 'Thank you for your service!',
+              timestamp: new Date().toISOString(),
+              sender: address
+            };
+
+            await conversation.send(JSON.stringify(tipMessage));
+
+            // Show success message
+            alert('Tip sent successfully via XMTP!');
+          } catch (error) {
+            console.error('XMTP payment error:', error);
+            alert('Failed to send tip via XMTP. Please try again.');
+          }
           break;
       }
     } catch (error) {
       console.error('Payment error:', error);
-      // TODO: Show error message to user
+      alert('Payment failed. Please try again.');
     } finally {
       setIsProcessing(false);
     }
