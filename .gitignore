@@ -25,10 +25,18 @@ yarn-error.log*
 # local env files
 .env*.local
 .env
+.env.development
+.env.production
 
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts 
+next-env.d.ts
+
+# Firebase
+*-firebase-adminsdk-*.json
+firebase-debug.log
+firebase-debug.*.log
+firebase-credentials.json 
