@@ -34,10 +34,8 @@ service cloud.firestore {
 
     // Staff rules
     match /staff/{staffId} {
-      allow read: if isAuthenticated() && 
-        (isRestaurantOwner(resource.data.restaurantId) || 
-         isStaffMember(resource.data.restaurantId));
-      allow write: if isRestaurantOwner(resource.data.restaurantId);
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == staffId;
     }
 
     // Tip rules
@@ -52,6 +50,28 @@ service cloud.firestore {
     match /notifications/{notificationId} {
       allow read: if isAuthenticated() && isOwner(resource.data.userId);
       allow write: if isAuthenticated() && isOwner(resource.data.userId);
+    }
+
+    // Chat rules
+    match /chats/{chatId} {
+      allow read: if request.auth != null && 
+        (resource.data.participants[request.auth.uid] != null || 
+         request.auth.uid == resource.data.ownerId);
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && 
+        (request.auth.uid == resource.data.ownerId || 
+         resource.data.participants[request.auth.uid] != null);
+      allow delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
+    }
+
+    // Message rules
+    match /chats/{chatId}/messages/{messageId} {
+      allow read: if request.auth != null && 
+        get(/databases/$(database)/documents/chats/$(chatId)).data.participants[request.auth.uid] != null;
+      allow create: if request.auth != null && 
+        get(/databases/$(database)/documents/chats/$(chatId)).data.participants[request.auth.uid] != null;
+      allow update, delete: if request.auth != null && 
+        request.auth.uid == resource.data.senderId;
     }
   }
 } 
