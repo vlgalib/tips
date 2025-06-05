@@ -1,0 +1,57 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isRestaurantOwner(restaurantId) {
+      return get(/databases/$(database)/documents/restaurants/$(restaurantId)).data.ownerId == request.auth.uid;
+    }
+    
+    function isStaffMember(restaurantId) {
+      return exists(/databases/$(database)/documents/staff/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.restaurantId == restaurantId;
+    }
+
+    // User rules
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
+    }
+
+    // Restaurant rules
+    match /restaurants/{restaurantId} {
+      allow read: if isAuthenticated();
+      allow write: if isRestaurantOwner(restaurantId);
+    }
+
+    // Staff rules
+    match /staff/{staffId} {
+      allow read: if isAuthenticated() && 
+        (isRestaurantOwner(resource.data.restaurantId) || 
+         isStaffMember(resource.data.restaurantId));
+      allow write: if isRestaurantOwner(resource.data.restaurantId);
+    }
+
+    // Tip rules
+    match /tips/{tipId} {
+      allow read: if isAuthenticated() && 
+        (isRestaurantOwner(resource.data.restaurantId) || 
+         isStaffMember(resource.data.restaurantId));
+      allow create: if isAuthenticated();
+    }
+
+    // Notification rules
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && isOwner(resource.data.userId);
+      allow write: if isAuthenticated() && isOwner(resource.data.userId);
+    }
+  }
+} 
