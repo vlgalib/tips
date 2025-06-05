@@ -1,14 +1,56 @@
 import { Client } from '@xmtp/xmtp-js';
 import { Wallet } from 'ethers';
 
-let client: Client | null = null;
+let xmtpClient: Client | null = null;
 
-export async function initializeXMTPClient(privateKey: string) {
-  if (client) return client;
+export async function getXMTPClient() {
+  if (xmtpClient) return xmtpClient;
 
-  const wallet = new Wallet(privateKey);
-  client = await Client.create(wallet, { env: 'production' });
+  if (!process.env.XMTP_PRIVATE_KEY) {
+    throw new Error('XMTP_PRIVATE_KEY is not set');
+  }
+
+  const wallet = new Wallet(process.env.XMTP_PRIVATE_KEY);
+  const client = await Client.create(wallet, {
+    env: process.env.XMTP_ENV === 'production' ? 'production' : 'dev'
+  });
+
+  xmtpClient = client;
   return client;
+}
+
+export async function sendTipNotification(
+  recipientAddress: string,
+  amount: string,
+  message?: string
+) {
+  const client = await getXMTPClient();
+  const conversation = await client.conversations.newConversation(recipientAddress);
+  
+  await conversation.send(
+    `You received a tip of ${amount} USDC${message ? ` with message: "${message}"` : ''}`
+  );
+}
+
+export async function listenForTipCommands(
+  callback: (sender: string, amount: string, message?: string) => Promise<void>
+) {
+  const client = await getXMTPClient();
+  
+  for await (const conversation of await client.conversations.list()) {
+    for await (const message of await conversation.messages()) {
+      if (message.content.startsWith('/tip')) {
+        const [_, amount, ...messageParts] = message.content.split(' ');
+        const tipMessage = messageParts.join(' ');
+        
+        await callback(
+          message.senderAddress,
+          amount,
+          tipMessage || undefined
+        );
+      }
+    }
+  }
 }
 
 export async function sendTipMessage(
@@ -16,11 +58,11 @@ export async function sendTipMessage(
   amount: number,
   message?: string
 ) {
-  if (!client) {
+  if (!xmtpClient) {
     throw new Error('XMTP client not initialized');
   }
 
-  const conversation = await client.conversations.newConversation(recipientAddress);
+  const conversation = await xmtpClient.conversations.newConversation(recipientAddress);
   const tipMessage = {
     type: 'tip',
     amount,
@@ -34,11 +76,11 @@ export async function sendTipMessage(
 export async function listenForTips(
   onTipReceived: (tip: { amount: number; message?: string; sender: string }) => void
 ) {
-  if (!client) {
+  if (!xmtpClient) {
     throw new Error('XMTP client not initialized');
   }
 
-  const conversations = await client.conversations.list();
+  const conversations = await xmtpClient.conversations.list();
   
   for (const conversation of conversations) {
     const messages = await conversation.messages();

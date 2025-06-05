@@ -6,36 +6,30 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "auto-commit": "git add . && git commit -m \"Auto-update: $(date '+%Y-%m-%d %H:%M:%S')\" && git push origin main",
-    "sync": "node scripts/auto-sync.js"
+    "lint": "next lint"
   },
   "dependencies": {
-    "@coinbase/onchainkit": "^0.38.13",
-    "@coinbase/wallet-sdk": "^4.3.3",
-    "@firebase/app": "^0.13.0",
-    "@firebase/auth": "^1.10.6",
-    "@firebase/firestore": "^4.7.16",
-    "@firebase/storage": "^0.13.12",
-    "@heroicons/react": "^2.2.0",
-    "@xmtp/xmtp-js": "^13.0.4",
-    "ethers": "^5.7.2",
-    "firebase": "^11.8.1",
-    "firebase-admin": "^13.4.0",
+    "@heroicons/react": "^2.1.1",
+    "@xmtp/xmtp-js": "^10.0.0",
+    "date-fns": "^3.3.1",
+    "ethers": "^6.11.1",
+    "firebase": "^10.8.0",
+    "firebase-admin": "^12.0.0",
+    "moralis": "^2.25.0",
     "next": "14.1.0",
-    "qrcode.react": "^4.2.0",
-    "react": "^18",
-    "react-dom": "^18"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "recharts": "^2.12.0"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "autoprefixer": "^10.0.1",
-    "eslint": "^8",
+    "@types/node": "^20.11.19",
+    "@types/react": "^18.2.57",
+    "@types/react-dom": "^18.2.19",
+    "autoprefixer": "^10.4.17",
+    "eslint": "^8.56.0",
     "eslint-config-next": "14.1.0",
-    "postcss": "^8",
-    "tailwindcss": "^3.3.0",
-    "typescript": "^5"
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.3.3"
   }
 }

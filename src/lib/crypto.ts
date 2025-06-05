@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { OnchainKit } from '@coinbase/onchainkit';
 
 // USDC contract address on Base
-const USDC_ADDRESS = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
+const USDC_ADDRESS = process.env.NEXT_PUBLIC_USDC_CONTRACT_ADDRESS || '';
 
 // USDC ABI (minimal for transfer)
 const USDC_ABI = [
