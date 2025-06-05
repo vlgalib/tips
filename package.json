@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "auto-commit": "git add . && git commit -m \"Auto-update: $(date '+%Y-%m-%d %H:%M:%S')\" && git push origin main"
+    "auto-commit": "git add . && git commit -m \"Auto-update: $(date '+%Y-%m-%d %H:%M:%S')\" && git push origin main",
+    "sync": "node scripts/auto-sync.js"
   },
   "dependencies": {
     "@coinbase/onchainkit": "^0.38.13",
