@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "@coinbase/onchainkit": "^0.38.13",
+    "@coinbase/wallet-sdk": "^4.3.3",
+    "@heroicons/react": "^2.2.0",
+    "@xmtp/xmtp-js": "^13.0.4",
+    "ethers": "^5.7.2",
+    "firebase": "^11.8.1",
+    "qrcode.react": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.29"
+  }
+}
